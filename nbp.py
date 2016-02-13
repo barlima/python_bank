@@ -1,6 +1,7 @@
 from sys import argv
 import currency
 import exchange
+import rates
 
 try:
     amount = argv[1]
