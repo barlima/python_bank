@@ -12,30 +12,37 @@ class Rates(object):
     """
 
     def __init__(self, date='today'):
-        if date != 'today':
+        if re.search(r'(\d{1,2})\D+(\d{1,2})\D+(\d{4})', date):
             self.__getDate(date)
         else:
             import datetime
             today = datetime.datetime.now()
             (self.day, self.month, self.year) = (today.day, today.month, today.year)
+            if int(self.day) < 10:
+                self.day = "".join(('0', str(self.month)))
+            if int(self.month) < 10:
+                self.month = "".join(('0', str(self.month)))
 
         self.__getMostCurrent()
 
 
     def __getDate(self, date):
-        datePattern = re.compile(r'^(\d{1,2})\D+(\d{1,2})\D+(\d{4})$')
-        (self.day, self.month, self.year) = datePattern.search(date).groups()
-        #print self.day, self.month, self.year
+        datePattern = re.compile(r'(\d{1,2})\D+(\d{1,2})\D+(\d{4})')
+        try:
+            (self.day, self.month, self.year) = datePattern.match(date).groups()
+
+        except(AttributeError):
+            print "Wrong date format"
 
     def __getMostCurrent(self):
         url = urllib.urlopen('http://www.nbp.pl/kursy/xml/dir.txt')
         url.read(3)
 
         for line in url:
-            searchDate = int(self.year[2:4] + self.month + self.day)
+            searchDate = int(str(self.year)[2:4] + str(self.month) + str(self.day))
             if re.search( r'^a\d{3}z(\d{2}\d{2}\d{2})', line):
                 if searchDate >= int(line[5:]):
-                    self.link = line
+                    self.link = str(line[0:11])
 
         url.close()
 #

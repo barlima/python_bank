@@ -1,5 +1,6 @@
 from xml.dom import minidom
 import urllib
+import rates
 
 class Currency(object):
     """
@@ -12,8 +13,9 @@ class Currency(object):
         Currency.multiply - default value is 1
     """
 
-    def __init__(self, XXX):
+    def __init__(self, XXX, date):
         self.name = XXX.upper()
+        self.path = date
         if self.name != 'PLN':
             self.__getRate()
         else:
@@ -21,7 +23,15 @@ class Currency(object):
             self.multiply = 1
 
     def __getRate(self):
-        url = urllib.urlopen('http://www.nbp.pl/kursy/xml/a001z160104.xml')
+        ratesDate = rates.Rates(self.path)
+        try:
+            self.file =  ratesDate.link
+            link = "".join(('http://www.nbp.pl/kursy/xml/', ratesDate.link, '.xml'))
+        except(AttributeError):
+            print 'Something went wrong, please contact the master'
+            link = 'http://www.nbp.pl/kursy/xml/a001z160104.xml'
+
+        url = urllib.urlopen(link)
         xml = minidom.parse(url)
         url.close()
 
